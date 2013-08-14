@@ -3,21 +3,21 @@
 #include <cstring>
 #include <string>
 #include <stack>
-#include <algorithm>
-#define maxn 106
+#define maxn 20002
 using namespace std;
 
 struct Edge
 {
     int v;
     int next;
-} e[maxn*maxn];
+} e[50002];
 
-int n, m;
-int dfn[maxn], low[maxn], id[maxn], in[maxn],out[maxn];
-int cnt, adj[maxn], ans1, index, num,ans2;
+int cnt, adj[maxn];
+int dfn[maxn], low[maxn], in[maxn], out[maxn], id[maxn];
 bool instack[maxn];
-stack<int> st;
+int index, num, ans1, ans2;
+int n, m;
+stack<int > st;
 
 void addedge(int u, int v)
 {
@@ -25,9 +25,10 @@ void addedge(int u, int v)
     e[cnt].next=adj[u];
     adj[u]=cnt++;
 }
+
 void tarjan(int u)
 {
-    dfn[u]=low[u]=++index;
+    dfn[u] = low[u] = ++index;
     st.push(u);
     instack[u]=true;
     for (int t = adj[u]; t != -1; t = e[t].next)
@@ -40,16 +41,15 @@ void tarjan(int u)
         }
         else if(instack[v])
         {
-            low[u]=min(low[u],dfn[v]);
+            low[u]=min(low[u], dfn[v]);
         }
     }
-    if(dfn[u] == low[u])
+    if(dfn[u]==low[u])
     {
         num++;
         int v;
         do
         {
-
             v=st.top();
             instack[v]=false;
             id[v]=num;
@@ -60,55 +60,57 @@ void tarjan(int u)
 }
 int main()
 {
-    int x;
-    while (~scanf("%d",&n))
+    int ncase;
+    int x, y;
+    scanf("%d",&ncase);
+    while(ncase--)
     {
         memset(adj, -1, sizeof(adj));
-        memset(dfn,0,sizeof(dfn));
-        memset(id,0,sizeof(id));
-        memset(out,0,sizeof(in));
-        memset(in,0,sizeof(in));
-        memset(instack,false,sizeof(instack));
-        cnt = 0;
-        ans1 = 0;
-        num = 0;
-        index = 0;
-        ans2 = 0;
-        for (int i = 1; i <= n; i++)
+        memset(dfn, 0, sizeof(dfn));
+        memset(in, 0, sizeof(in));
+        memset(out, 0, sizeof(out));
+        memset(instack, false, sizeof(instack));
+        memset(id, 0, sizeof(id));
+        cnt=0;
+        ans1=0;
+        ans2=0;
+        index=0;
+        num=0;
+        scanf("%d%d",&n,&m);
+        for (int i = 1; i <= m; i++)
         {
-            while(1)
-            {
-                scanf("%d",&x);
-                if(!x)break;
-                addedge(i, x);
-            }
+            scanf("%d%d",&x,&y);
+            addedge(x, y);
         }
         for (int i = 1; i <= n; i++)
         {
             if(!dfn[i]) tarjan(i);
         }
-        if(num == 1){cout << 1 << endl; cout << 0 << endl;continue;}
+        if(num == 1)
+        {
+            cout << 0 << endl;
+            continue;
+        }
         for (int i = 1; i <= n; i++)
         {
-            for (int t = adj[i]; t != -1; t = e[t].next)
+            for (int t = adj[i]; t!=-1; t=e[t].next)
             {
-                int v = e[t].v;
-                if(id[i] != id[v]) out[ id[i] ]  ++, in[ id[v] ]++;
+                int v=e[t].v;
+                if(id[i]!=id[v]) out[ id[i] ] ++, in[ id[v] ]++;
             }
         }
-        for (int i = 1; i <= num; i++)
+        for(int i = 1; i <= num; i++)
         {
             if(in[i] == 0)
             {
                 ans1++;
             }
-            else if(out[i] == 0)
+            if(out[i] == 0)
             {
                 ans2++;
             }
         }
-        cout << ans1 << endl;
-        cout << max(ans1, ans2)<<endl;
+        printf("%d\n",max(ans1, ans2));
     }
     return 0;
 }
