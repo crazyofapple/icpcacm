@@ -1,59 +1,138 @@
+//第一次用Tarjan求强连通分量
+//先求强连通分量，再重新构图，找出度为0的点，并且出度为0的点只有1个
+//这题不能求入度，不能判断重新构图后的点的入度为n-1
+//因为存在单链的情况，这时，链尾的点就是答案，但是该入度为1
 #include <iostream>
 #include <cstdio>
 #include <cstring>
-#include <stack>
-#include <algorithm>
-#define maxn 100006
 using namespace std;
+
+const int N = 10005;
+const int M = 50005;
 
 struct Edge
 {
     int v;
     int next;
-} e[maxn];
+};
 
+int head[N];
+Edge edge[M];
 int n, m;
-int dfn[maxn], low[maxn], id[maxn],in[maxn],out[maxn];
-int cnt, adj[maxn], ans,index, num;
-bool instack[maxn];
-stack<int> st;
+int cnt_edge;
 
-void addedge(int u, int v)
+void add_edge(int u, int v)
 {
-    e[cnt].v=v;
-    e[cnt].next=adj[u];
-    adj[u]=cnt++;
+    edge[cnt_edge].next = head[u];
+    edge[cnt_edge].v = v;
+    head[u] = cnt_edge++;
 }
+
+int scc_head[N];
+Edge scc_edge[N];
+int cnt_scc_edge;
+
+void add_edge2(int u, int v)
+{
+    scc_edge[cnt_scc_edge].next = scc_head[u];
+    scc_edge[cnt_scc_edge].v = v;
+    scc_head[u] = cnt_scc_edge++;
+}
+
+int cnt_scc_node;
+int Stack[N];
+int low[N], dfn[N], outdegree[N];
+int Index,top;
+bool in_stack[N];
+int belong[N];
+int scc_node_size[N];
+
 void tarjan(int u)
 {
-    dfn[u]=low[u]=++index;
-    st.push(u);
-    instack[u]=true;
-    for (int t = adj[u]; t != -1; t = e[t].next)
+    dfn[u] = low[u] = ++Index;
+    Stack[top++] = u;
+    in_stack[u] = true;
+    for (int i = head[u]; i != -1; i = edge[i].next)
     {
-        int v=e[t].v;
-        if(!dfn[v])
+        int v = edge[i].v;
+        if (!dfn[v])
         {
             tarjan(v);
-            low[u]=min(low[u],low[v]);
+            low[u] = min(low[u], low[v]);
         }
-        else if(instack[v])
-        {
-            low[u]=min(low[u],dfn[v]);
-        }
+        else if (in_stack[v])
+            low[u] = min(low[u], dfn[v]);
     }
-    if(dfn[u] == low[u])
+
+    if (dfn[u] == low[u])
     {
-        num++;
-        int v;
+        int j;
         do
         {
-
-            v=st.top();
-            instack[v]=false;
-            id[v]=num;
-            st.pop();
+            j = Stack[--top];
+            in_stack[j] = false;
+            scc_node_size[cnt_scc_node]++;
+            belong[j] = cnt_scc_node;
         }
-        while(u!=v);
+        while (u != j);
+        cnt_scc_node++;
     }
+}
+
+int main()
+{
+    int a, b;
+    while (scanf("%d%d", &n, &m) != EOF)
+    {
+        cnt_edge = 0;
+        memset(head, -1, sizeof(head));
+        for (int i = 0; i < m; i++)
+        {
+            scanf("%d%d", &a, &b);
+            add_edge(a, b);
+        }
+
+        memset(dfn, 0, sizeof(dfn));
+        memset(in_stack, false, sizeof(in_stack));
+        Index = 0;
+        cnt_scc_node = 0;
+        top = 0;
+
+        memset(scc_node_size, 0, sizeof(scc_node_size));
+        for (int i = 1; i <= n; i++)
+            if (!dfn[i])
+                tarjan(i);
+
+        //重新构图，求出度为0的点
+        memset(scc_head, -1, sizeof(scc_head));
+        cnt_scc_edge = 0;
+
+        for (int i = 1; i <= n; i++)
+            for (int j = head[i]; j != -1 ; j = edge[j].next)
+            {
+                int v = edge[j].v;
+                if (belong[i] != belong[v])
+                    add_edge2(belong[i], belong[v]);
+            }
+
+        memset(outdegree, 0, sizeof(outdegree));
+        for (int i = 0; i < cnt_scc_node; i++)
+            for (int j = scc_head[i]; j != -1; j = scc_edge[j].next)
+                outdegree[i]++;
+
+        int ans = 0;
+        int ans_count = 0;
+        for (int i = 0; i < cnt_scc_node; i++)
+            if (outdegree[i] == 0)
+            {
+                ans = scc_node_size[i];
+                ans_count++;
+            }
+
+        if (ans_count == 1)
+            printf("%d\n", ans);
+        else
+            printf("0\n");
+    }
+    return 0;
 }

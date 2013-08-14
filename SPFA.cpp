@@ -201,36 +201,36 @@ int main()
 //    node[cnt].next = adj[u];
 //    adj[u] = cnt++;
 //}
-bool spfa()
-{
-    memset(vis,false,sizeof(vis));
-    for (int i = 1; i <= n; i++) dis[i] = inf;
-    dis[1] = 0;
-    queue<int> q;
-    q.push(1);
-    while(!q.empty())
-    {
-        int t = q.front();q.pop();
-        vis[t] = false;
-        for (int i = adj[t]; i != -1; i=node[i].next)
-        {
-            int v= node[i].v;
-            int w=node[i].w;
-            if(dis[v]>dis[t]+w)
-            {
-                dis[v] = dis[t]+w;
-                if(!vis[v])
-                {
-                    vis[v]=true;
-                    q.push(v);
-                  if((++p[v])>n) return false; //这里要用sqrt（n）
-                }
-
-            }
-        }
-    }
-    return true;
-}
+//bool spfa()
+//{
+//    memset(vis,false,sizeof(vis));
+//    for (int i = 1; i <= n; i++) dis[i] = inf;
+//    dis[1] = 0;
+//    queue<int> q;
+//    q.push(1);
+//    while(!q.empty())
+//    {
+//        int t = q.front();q.pop();
+//        vis[t] = false;
+//        for (int i = adj[t]; i != -1; i=node[i].next)
+//        {
+//            int v= node[i].v;
+//            int w=node[i].w;
+//            if(dis[v]>dis[t]+w)
+//            {
+//                dis[v] = dis[t]+w;
+//                if(!vis[v])
+//                {
+//                    vis[v]=true;
+//                    q.push(v);
+//                  if((++p[v])>n) return false; //这里要用sqrt（n）
+//                }
+//
+//            }
+//        }
+//    }
+//    return true;
+//}
 //int main()
 //{
 //    memset(adj,-1,sizeof(adj));
